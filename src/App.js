@@ -1,24 +1,50 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom'; // ⬅️ No need for Router here
+import { AuthProvider } from './context/AuthContext';
+import { CourseProvider } from './context/CourseContext';
+import Layout from './components/layout/Layout';
+import Home from './pages/Home';
+import Courses from './pages/Courses';
+import CourseDetail from './components/courses/CourseDetail';
+import Jobs from './pages/Job';
+import JobDetail from './components/jobs/JobDetails';
+import Dashboard from './pages/Dashboard';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import FAQ from './components/FAQ';
+import TermsAndConditions from './components/TermsAndConditions';
+import ForgotPassword from './components/auth/ForgotPassword';
+import ResetPassword from './components/auth/ResetPassword';
+import OTPVerification from './components/auth/OTPVerification';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+      <CourseProvider>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/courses" element={<Courses />} />
+            <Route path="/course/:id" element={<CourseDetail />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/terms" element={<TermsAndConditions />} />
+            <Route path="/jobs" element={<Jobs />} />
+            <Route path="/job/:id" element={<JobDetail />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/verify-otp" element={<OTPVerification />} />
+            {/* Add more routes as needed */}
+          </Routes>
+        </Layout>
+      </CourseProvider>
+    </AuthProvider>
   );
 }
 
