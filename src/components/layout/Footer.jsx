@@ -15,7 +15,7 @@ const Footer = () => {
         <Row>
           {/* Brand Info */}
           <Col md={4} className="mb-4">
-            <h4 className="text-primary">SkillMaster</h4>
+            <h4 className="text-primary">JoinSchooling</h4>
             <p>
               Unlock your potential with expert-led online courses in tech,
               business, and more.
