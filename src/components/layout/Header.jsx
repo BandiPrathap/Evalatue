@@ -27,7 +27,7 @@ const Header = () => {
               height="40" 
               className="me-2 border rounded-circle"
             />
-            SkillMaster
+            JoinSchooling
           </span>
         </Navbar.Brand>
         <Navbar.Toggle 
