@@ -5,6 +5,10 @@ const API = axios.create({
   baseURL: "https://elevateu-khaki.vercel.app/",
 });
 
+// const API = axios.create({
+//   baseURL: "http://localhost:5000/",
+// });
+
 // Request interceptor to inject token
 API.interceptors.request.use(config => {
   const user = JSON.parse(localStorage.getItem('user'));

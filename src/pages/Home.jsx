@@ -14,6 +14,8 @@ import {getAllCourses,getAllJobs} from '../API/index'
 const HomePage = () => {
   const [courses, setCourses] = useState([]);
   const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     AOS.init({
@@ -23,6 +25,7 @@ const HomePage = () => {
   }, []);
 
   const fetchData = async () => {
+    setLoading(true); 
     const now = Date.now();
     const expiryTime = 3600000; // 1 hour
 
@@ -48,6 +51,7 @@ const HomePage = () => {
 
       setCourses(sortedCourses);
       setJobs(latestJobs);
+      setLoading(false);
       return;
     }
 
@@ -77,6 +81,8 @@ const HomePage = () => {
       setJobs(latestJobs);
     } catch (error) {
       console.error("Error fetching data:", error);
+    }finally{
+      setLoading(false); // Set loading to false after data fetch
     }
   };
 
@@ -124,13 +130,22 @@ const HomePage = () => {
       <section className="py-5">
         <Container>
           <h2 className="text-center mb-5" data-aos="fade-up">Popular Courses</h2>
-          <Row>
-            {courses.map((course, index) => (
-              <Col md={4} key={course.id} data-aos="fade-up" data-aos-delay={index * 100} className='mb-3'>
-                <CourseCard course={course} />
-              </Col>
-            ))}
-          </Row>
+          {loading ? (
+            <div className="text-center w-100">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            <Row>
+              {courses.map((course, index) => (
+                <Col md={4} key={course.id} data-aos="fade-up" data-aos-delay={index * 100} className='mb-3'>
+                  <CourseCard course={course} />
+                </Col>
+              ))}
+            </Row>
+          )}
+
           <div className="text-center mt-4" data-aos="fade-up">
             <Button variant="primary" as={Link} to="/courses">
               View All Courses
@@ -179,13 +194,22 @@ const HomePage = () => {
       <section className="py-5">
         <Container>
           <h2 className="text-center mb-5" data-aos="fade-up">Latest Job Opportunities</h2>
-          <Row className='d-flex justify-content-column m-lg-5'>
-            {jobs.map((job, index) => (
-              <Col md={4} key={job.id} data-aos="fade-up" data-aos-delay={index * 100} className='mb-3'>
-                <JobCard job={job} />
-              </Col>
-            ))}
-          </Row>
+          {loading ? (
+            <div className="text-center w-100">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            <Row className='d-flex justify-content-column m-lg-5'>
+              {jobs.map((job, index) => (
+                <Col md={4} key={job.id} data-aos="fade-up" data-aos-delay={index * 100} className='mb-3'>
+                  <JobCard job={job} />
+                </Col>
+              ))}
+            </Row>
+          )}
+
           <div className="text-center mt-4" data-aos="fade-up">
             <Button variant="outline-primary" as={Link} to="/jobs">
               View All Jobs

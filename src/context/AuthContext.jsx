@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const verifyOtp = async (email, otp) => {
+  const verifyOtp = async (email, otp) => {   
     try {
       const response = await fetch(`${BASE_URL}/api/auth/verify-otp`, {
         method: 'POST',

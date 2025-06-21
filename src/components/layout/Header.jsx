@@ -16,7 +16,7 @@ const Header = () => {
   };
 
   return (
-    <Navbar bg="light" expand="lg" expanded={expanded} className="shadow-sm fixed-top">
+    <Navbar bg="light" expand="lg" expanded={expanded} className="shadow-sm fixed-top" style={{ width: '100vw' }}>
       <Container>
         <Navbar.Brand as={Link} to="/" className="fw-bold text-primary">
           <span className="d-flex align-items-center">
@@ -38,14 +38,14 @@ const Header = () => {
         </Navbar.Toggle>
         <Navbar.Collapse id="navbar">
           <Nav className="m-auto">
-            <Nav.Link as={Link} to="/">Home</Nav.Link>
-            <Nav.Link as={Link} to="/about">About</Nav.Link>
-            <Nav.Link as={Link} to="/courses">Courses</Nav.Link>
-            <Nav.Link as={Link} to="/jobs">Jobs</Nav.Link>
-            <Nav.Link as={Link} to="/contact">Contact</Nav.Link>
+            <Nav.Link as={Link} to="/" onClick={() => setExpanded(false)}>Home</Nav.Link>
+            <Nav.Link as={Link} to="/about" onClick={() => setExpanded(false)}>About</Nav.Link>
+            <Nav.Link as={Link} to="/courses" onClick={() => setExpanded(false)}>Courses</Nav.Link>
+            <Nav.Link as={Link} to="/jobs" onClick={() => setExpanded(false)}>Jobs</Nav.Link>
+            <Nav.Link as={Link} to="/contact" onClick={() => setExpanded(false)}>Contact</Nav.Link>
           </Nav>
           
-          <Form className="d-flex me-3" onSubmit={handleSearch}>
+          <Form className="d-flex me-3" onSubmit={handleSearch} onClick={() => setExpanded(false)}>
             <Form.Control
               type="search"
               placeholder="Search courses..."
@@ -68,10 +68,17 @@ const Header = () => {
                 as={Link} 
                 to="/dashboard"
                 className="me-2"
+                onClick={() => setExpanded(false)}
               >
                 Dashboard
               </Button>
-              <Button variant="outline-danger" onClick={logout}>
+              <Button
+                variant="outline-danger"
+                onClick={() => {
+                  logout();
+                  setExpanded(false);
+                }}
+              >
                 Logout
               </Button>
             </div>
@@ -85,7 +92,7 @@ const Header = () => {
               >
                 Login
               </Button>
-              <Button variant="primary" as={Link} to="/register">
+              <Button variant="primary" as={Link} to="/register" onClick={() => setExpanded(false)}>
                 Sign Up
               </Button>
             </div>

@@ -171,14 +171,14 @@ const CourseDetail = () => {
           />
         </Col>
 
-        <Col lg={4}>
+        {enrolled&&<Col lg={4}>
           <CourseEnrollCard 
             course={course}
             enrolled={enrolled}
             paymentProcessing={paymentProcessing}
             onEnrollClick={handlePayment}
           />
-        </Col>
+        </Col>}
       </Row>
     </Container>
   );
