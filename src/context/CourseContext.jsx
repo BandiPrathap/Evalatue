@@ -55,7 +55,7 @@ export const CourseProvider = ({ children }) => {
           {
             id: '2',
             title: 'Data Science Fundamentals',
-            instructor: 'John Doe',
+            instructor: 'John',
             rating: 4.6,
             reviews: 890,
             duration: '28 hours',
@@ -79,6 +79,19 @@ export const CourseProvider = ({ children }) => {
             price: 0,
             description: 'Learn the core principles of user experience design and create intuitive user interfaces.',
             image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80'
+          },
+          {
+            id: '4',
+            title: "Full Stack Web Development",
+            description: "Learn to build modern web applications using HTML, CSS, JavaScript, React, Node.js, and databases.",
+            rating: 4.8,
+            duration:'32 hours',
+            category: 'web development',
+            language:"English",
+            imageUrl:"https://image.png",
+            price: "199.99",
+            discount: "20.00",
+            created_at: "2025-05-24T07:37:49.964Z"
           }
         ];
         setCourses(dummyCourses);

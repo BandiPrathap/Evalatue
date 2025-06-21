@@ -1,16 +1,26 @@
 import React, { useEffect } from 'react';
 import { Container, Row, Col, Tab, Tabs, Card, ProgressBar,Button,Form } from 'react-bootstrap';
 import { FaBook, FaBriefcase, FaCertificate, FaUser, FaCog } from 'react-icons/fa';
-import { useAuth } from '../context/AuthContext';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import DashboardCard from '../components/dashboard/DashboardCard';
 import ProgressBarComponent from '../components/dashboard/ProgressBar';
 import UserProfile from '../components/dashboard/UserProfile';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
   const { user } = useAuth();
-  
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // If there's a redirect state, navigate to that location
+    if (location.state?.from) {
+      navigate(location.state.from, { replace: true });
+    }
+  }, [location, navigate]);
+
   useEffect(() => {
     AOS.init({
       duration: 1000,

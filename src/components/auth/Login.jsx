@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Form, Button, Container, Alert } from 'react-bootstrap';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
@@ -11,6 +11,8 @@ const Login = () => {
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/';
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,7 +24,10 @@ const Login = () => {
     setError('');
     
     try {
-      await login(formData);
+      const success = await login(formData);
+      if (success) {
+        navigate(from, { replace: true }); // Redirect to the intended page
+      }
     } catch (err) {
       setError('Invalid email or password');
     } finally {

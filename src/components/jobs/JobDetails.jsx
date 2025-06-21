@@ -1,187 +1,190 @@
-import React from 'react';
-import { Container, Card, Button, Row, Col, Badge } from 'react-bootstrap';
+import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import {
-  FaMapMarkerAlt, FaBriefcase, FaClock, FaMoneyBillWave,
-  FaUserFriends, FaBuilding, FaGlobe, FaCalendarAlt
-} from 'react-icons/fa';
+  BriefcaseFill, GeoAltFill, PeopleFill, CashStack, ClockHistory,
+  BoxArrowUpRight, Building, Calendar2Check, ChevronLeft
+} from 'react-bootstrap-icons';
+import { getJobById } from '../../API/index';
 
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffInDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-
-  if (diffInDays === 0) return 'Today';
-  if (diffInDays === 1) return 'Yesterday';
-  if (diffInDays < 7) return `${diffInDays} days ago`;
-  if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
-  return date.toLocaleDateString();
+// Format ISO date to readable format (e.g., Jun 21, 2025)
+const formatPostedDate = (isoString) => {
+  const date = new Date(isoString);
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
 };
 
-const JobDetail = ({ job }) => {
-  job = {
-    "id": 1,
-    "title": "Frontend Developer",
-    "company_name": "TechNova Solutions",
-    "location": "Bangalore, India",
-    "job_type": "full-time",
-    "mode": "hybrid",
-    "openings": 2,
-    "package": "INR 8 LPA",
-    "description": "Looking for a React.js developer with 2+ years of experience. Should be good with CSS, REST APIs, and Git.",
-    "apply_link": "https://www.linkedin.com/jobs/view/3890513911/",
-    "posted_by": 3,
-    "created_at": "2025-05-25T00:14:50.565Z"
+const JobDetails = () => {
+  const { id } = useParams();
+  const jobId = String(id); // Ensure consistent comparison
+  const oneHour = 3600000; // 1 hour
+  const now = Date.now();
+
+  const cachedJobs = JSON.parse(localStorage.getItem("jobsData")) || { data: [], timestamp: 0 };
+  const jobFromList = cachedJobs.data.find(job => String(job.id) === jobId);
+  const isListCacheFresh = now - cachedJobs.timestamp < oneHour;
+
+  const cachedJobDetail = JSON.parse(localStorage.getItem("jobData")) || { data: null, timestamp: 0 };
+  const isDetailCacheFresh = now - cachedJobDetail.timestamp < oneHour && cachedJobDetail.data?.id === jobId;
+
+  const [job, setJob] = useState(
+    isListCacheFresh && jobFromList
+      ? jobFromList
+      : isDetailCacheFresh
+        ? cachedJobDetail.data
+        : null
+  );
+  const [loading, setLoading] = useState(false);
+
+  const fetchJobDetails = async () => {
+    setLoading(true);
+    try {
+      const response = await getJobById(jobId);
+      const jobDetails = response.data;
+      setJob(jobDetails);
+
+      localStorage.setItem(
+        "jobData",
+        JSON.stringify({ data: jobDetails, timestamp: now })
+      );
+    } catch (error) {
+      console.error("Error fetching job details:", error);
+      setJob(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (!job) return <div className="text-center py-5">Loading job details...</div>;
+  useEffect(() => {
+    if (!job) {
+      fetchJobDetails();
+    }
+  }, [jobId, job]);
 
-  const postedDate = formatDate(job.created_at);
+  // Loader
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center min-vh-100">
+        <div className="text-center">
+          <div className="spinner-border text-primary mb-3" role="status"></div>
+          <p className="text-muted">Loading job details...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const jobTypeMap = {
-    'full-time': 'Full Time',
-    'part-time': 'Part Time',
-    contract: 'Contract',
-    internship: 'Internship',
-    remote: 'Remote'
-  };
-
-  const jobModeMap = {
-    remote: 'Remote',
-    hybrid: 'Hybrid',
-    onsite: 'On-site'
-  };
+  // Job not found
+  if (!job) {
+    return (
+      <div className="d-flex flex-column align-items-center justify-content-center min-vh-100 text-center px-3">
+        <div className="bg-light p-5 rounded-4 shadow-sm w-100" style={{ maxWidth: 400 }}>
+          <h1 className="h4 fw-bold text-dark mb-3">Job Not Found</h1>
+          <p className="text-muted mb-4">
+            The job you're looking for doesn't exist or may have been removed.
+          </p>
+          <a href="/jobs" className="d-inline-flex align-items-center text-primary fw-medium">
+            <ChevronLeft className="me-1" /> Back to jobs list
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <Container className="py-5">
-      <Card className="border-0 shadow-lg">
-        <Card.Body className="p-4">
-          <div className="mb-4">
-            <div className="d-flex justify-content-between align-items-start">
-              <div>
-                <h1 className="mb-1">{job.title}</h1>
-                <h3 className="text-primary mb-3">{job.company_name}</h3>
-              </div>
-              <Badge bg="success" className="fs-5 px-3 py-2">Active</Badge>
-            </div>
+    <div className="container py-2" style={{ maxWidth: 900 }}>
+      {/* <a href="/jobs" className="d-inline-flex align-items-center text-primary mb-3 fw-medium">
+        <ChevronLeft className="me-1" /> Back to jobs
+      </a> */}
 
-            <div className="d-flex flex-wrap gap-4 mb-4">
-              <div className="d-flex align-items-center">
-                <FaMapMarkerAlt className="text-muted me-2 fs-5" />
-                <span className="fs-5">{job.location}</span>
-              </div>
-              <div className="d-flex align-items-center">
-                <FaBriefcase className="text-muted me-2 fs-5" />
-                <span className="fs-5">{jobTypeMap[job.job_type] || job.job_type}</span>
-              </div>
-              <div className="d-flex align-items-center">
-                <FaBuilding className="text-muted me-2 fs-5" />
-                <span className="fs-5">{jobModeMap[job.mode] || job.mode}</span>
-              </div>
-              <div className="d-flex align-items-center">
-                <FaMoneyBillWave className="text-muted me-2 fs-5" />
-                <span className="fs-5">{job.package}</span>
+      <div className="bg-white rounded-4 shadow overflow-hidden border">
+        <div className="bg-primary bg-opacity-10 p-4 border-bottom">
+          <div className="row align-items-center">
+            <div className="col-md">
+              <h1 className="h3 fw-bold text-dark mb-2">{job.title}</h1>
+              <p className="text-muted small mb-1">
+                Posted on: {formatPostedDate(job.created_at)}
+              </p>
+              <div className="d-flex align-items-center mb-2">
+                <Building className="text-secondary me-2" />
+                <span className="text-muted fw-medium">{job.company_name}</span>
+                <span className="mx-2 text-secondary">•</span>
+                <GeoAltFill className="text-secondary me-2" />
+                <span className="text-muted">{job.location}</span>
               </div>
             </div>
+          </div>
+        </div>
 
-            <div className="d-flex flex-wrap gap-4">
-              <div className="d-flex align-items-center">
-                <FaUserFriends className="text-muted me-2" />
-                <span>Openings: {job.openings}</span>
+        <div className="p-4">
+          <div className="row g-4 mb-4">
+            <div className="col-md-6">
+              <div className="bg-light rounded-3 p-4 h-100">
+                <div className="d-flex align-items-center mb-3">
+                  <BriefcaseFill className="text-primary fs-4 me-2" />
+                  <h3 className="h6 fw-semibold text-dark mb-0">Job Details</h3>
+                </div>
+                {[
+                  ["Job Type", job.job_type],
+                  ["Work Mode", job.mode],
+                  ["Openings", job.openings],
+                  ["Package", job.package],
+                ].map(([label, value], i) => (
+                  <div className="mb-2 d-flex" key={i}>
+                    <div className="w-50 text-secondary d-flex align-items-center">
+                      {label === "Job Type" && <ClockHistory className="me-2" />}
+                      {label === "Work Mode" && <Calendar2Check className="me-2" />}
+                      {label === "Openings" && <PeopleFill className="me-2" />}
+                      {label === "Package" && <CashStack className="me-2" />}
+                      {label}
+                    </div>
+                    <div className="w-50 fw-medium">{value || 'N/A'}</div>
+                  </div>
+                ))}
               </div>
-              <div className="d-flex align-items-center">
-                <FaCalendarAlt className="text-muted me-2" />
-                <span>Posted: {postedDate}</span>
+            </div>
+
+            <div className="col-md-6">
+              <div className="bg-light rounded-3 p-4 h-100">
+                <div className="d-flex align-items-center mb-3">
+                  <BoxArrowUpRight className="text-primary fs-4 me-2" />
+                  <h3 className="h6 fw-semibold text-dark mb-0">Application</h3>
+                </div>
+                <div className="mb-3">
+                  <p className="text-muted mb-1">Apply directly through this link:</p>
+                  <a
+                    href={job.apply_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="d-inline-flex align-items-center text-primary text-break"
+                  >
+                    {job.apply_link}
+                    <BoxArrowUpRight className="ms-1 fs-6" />
+                  </a>
+                </div>
               </div>
             </div>
           </div>
 
-          <hr className="my-4" />
-
-          <Row>
-            <Col lg={8}>
-              <div className="mb-5">
-                <h4 className="mb-3">Job Description</h4>
-                <div className="lh-lg" style={{ whiteSpace: 'pre-line' }}>
-                  {job.description}
-                </div>
-              </div>
-            </Col>
-
-            <Col lg={4}>
-              <Card className="border-0 shadow-sm sticky-top" style={{ top: '20px' }}>
-                <Card.Body className="p-4">
-                  <h5 className="mb-4">Apply for this position</h5>
-
-                  <div className="d-grid gap-3">
-                    <Button
-                      as="a"
-                      href={job.apply_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      variant="primary"
-                      size="lg"
-                    >
-                      Apply Now
-                    </Button>
-
-                    <Button
-                      variant="outline-primary"
-                      size="lg"
-                    >
-                      Save Job
-                    </Button>
-                  </div>
-
-                  <hr className="my-4" />
-
-                  <div>
-                    <h6 className="mb-3">Job Overview</h6>
-                    <ul className="list-unstyled">
-                      <li className="mb-3 d-flex">
-                        <FaBriefcase className="text-muted me-3 mt-1" />
-                        <div>
-                          <small className="text-muted">Job Type</small>
-                          <div>{jobTypeMap[job.job_type] || job.job_type}</div>
-                        </div>
-                      </li>
-                      <li className="mb-3 d-flex">
-                        <FaMapMarkerAlt className="text-muted me-3 mt-1" />
-                        <div>
-                          <small className="text-muted">Location</small>
-                          <div>{job.location}</div>
-                        </div>
-                      </li>
-                      <li className="mb-3 d-flex">
-                        <FaMoneyBillWave className="text-muted me-3 mt-1" />
-                        <div>
-                          <small className="text-muted">Salary</small>
-                          <div>{job.package}</div>
-                        </div>
-                      </li>
-                      <li className="mb-3 d-flex">
-                        <FaClock className="text-muted me-3 mt-1" />
-                        <div>
-                          <small className="text-muted">Posted</small>
-                          <div>{postedDate}</div>
-                        </div>
-                      </li>
-                      <li className="d-flex">
-                        <FaGlobe className="text-muted me-3 mt-1" />
-                        <div>
-                          <small className="text-muted">Work Mode</small>
-                          <div>{jobModeMap[job.mode] || job.mode}</div>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
-    </Container>
+          {/* Job Description */}
+          <div className="border-top pt-4">
+            <h2 className="h5 fw-semibold text-dark mb-3 d-flex align-items-center">
+              <BriefcaseFill className="me-2 text-primary" />
+              Job Description
+            </h2>
+            <div className="text-muted">
+              {job.description ? (
+                <p>{job.description}</p>
+              ) : (
+                <div className="fst-italic">No description provided for this position.</div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default JobDetail;
+export default JobDetails;

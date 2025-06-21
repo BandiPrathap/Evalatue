@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import { Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FaStar, FaClock, FaUserGraduate } from 'react-icons/fa';
@@ -6,7 +6,11 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 
 const CourseCard = ({ course }) => {
-  console.log(course)
+  // Initialize AOS animation
+  useEffect(() => {
+    AOS.init({ duration: 800 });
+  }, []);
+
   return (
     <Card 
       className="h-100 shadow-sm card-hover border-0.5"
@@ -14,7 +18,7 @@ const CourseCard = ({ course }) => {
     >
       <Card.Img 
         variant="top" 
-        src={course.image || "https://via.placeholder.com/300x150"} 
+        src={course.imageurl || "https://via.placeholder.com/300x150"} 
         alt={course.title}
         style={{ height: '150px', objectFit: 'cover' }}
       />

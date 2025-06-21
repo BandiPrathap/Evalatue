@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Button, Card, Carousel } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FaUser, FaBook, FaBriefcase, FaRocket } from 'react-icons/fa';
@@ -9,8 +9,12 @@ import JobCard from '../components/jobs/JobCard';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import FAQ from '../components/FAQ';
+import {getAllCourses,getAllJobs} from '../API/index'
 
 const HomePage = () => {
+  const [courses, setCourses] = useState([]);
+  const [jobs, setJobs] = useState([]);
+
   useEffect(() => {
     AOS.init({
       duration: 1000,
@@ -18,18 +22,69 @@ const HomePage = () => {
     });
   }, []);
 
-  // Dummy data
-  const popularCourses = [
-    { id: 1, title: 'Web Development Bootcamp', rating: 4.8 },
-    { id: 2, title: 'Data Science Fundamentals', rating: 4.6 },
-    { id: 3, title: 'UX Design Principles', rating: 4.9 }
-  ];
+  const fetchData = async () => {
+    const now = Date.now();
+    const expiryTime = 3600000; // 1 hour
 
-  const jobListings = [
-    { id: 1, title: 'Frontend Developer', company: 'TechCorp', location: 'Remote' },
-    { id: 2, title: 'Data Analyst', company: 'DataInsights', location: 'New York' },
-    { id: 3, title: 'UI/UX Designer', company: 'DesignHub', location: 'San Francisco' }
-  ];
+    const cachedCourses = JSON.parse(localStorage.getItem("coursesData"));
+    const cachedJobs = JSON.parse(localStorage.getItem("jobsData"));
+
+    if (
+      cachedCourses &&
+      cachedJobs &&
+      now - cachedCourses.timestamp < expiryTime &&
+      now - cachedJobs.timestamp < expiryTime
+    ) {
+      // Use only top 3 and latest 3 from cached full data
+      const sortedCourses = cachedCourses.data
+        .sort((a, b) => b.rating === a.rating
+          ? new Date(b.createdAt) - new Date(a.createdAt)
+          : b.rating - a.rating)
+        .slice(0, 3);
+
+      const latestJobs = cachedJobs.data
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 3);
+
+      setCourses(sortedCourses);
+      setJobs(latestJobs);
+      return;
+    }
+
+    try {
+      const courseRes = await getAllCourses();
+      const jobRes = await getAllJobs();
+
+      const allCourses = courseRes.data;
+      const allJobs = jobRes.data;
+
+      const sortedCourses = allCourses
+        .sort((a, b) => b.rating === a.rating
+          ? new Date(b.createdAt) - new Date(a.createdAt)
+          : b.rating - a.rating)
+        .slice(0, 3);
+
+      const latestJobs = allJobs
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 3);
+
+      // Store complete data in localStorage
+      localStorage.setItem("coursesData", JSON.stringify({ data: allCourses, timestamp: now }));
+      localStorage.setItem("jobsData", JSON.stringify({ data: allJobs, timestamp: now }));
+
+      // Use filtered data for homepage
+      setCourses(sortedCourses);
+      setJobs(latestJobs);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchData();  
+  }, []);
+
 
   return (
     <>
@@ -44,8 +99,8 @@ const HomePage = () => {
                 <Button variant="light" as={Link} to="/courses">
                   Browse Courses
                 </Button>
-                <Button variant="outline-light">
-                  Get Started Free
+                <Button variant="outline-light" as={Link} to="/jobs">
+                  Browse Jobs
                 </Button>
               </div>
             </Col>
@@ -70,7 +125,7 @@ const HomePage = () => {
         <Container>
           <h2 className="text-center mb-5" data-aos="fade-up">Popular Courses</h2>
           <Row>
-            {popularCourses.map((course, index) => (
+            {courses.map((course, index) => (
               <Col md={4} key={course.id} data-aos="fade-up" data-aos-delay={index * 100} className='mb-3'>
                 <CourseCard course={course} />
               </Col>
@@ -125,7 +180,7 @@ const HomePage = () => {
         <Container>
           <h2 className="text-center mb-5" data-aos="fade-up">Latest Job Opportunities</h2>
           <Row className='d-flex justify-content-column m-lg-5'>
-            {jobListings.map((job, index) => (
+            {jobs.map((job, index) => (
               <Col md={4} key={job.id} data-aos="fade-up" data-aos-delay={index * 100} className='mb-3'>
                 <JobCard job={job} />
               </Col>

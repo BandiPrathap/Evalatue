@@ -1,5 +1,6 @@
+// src/App.js
 import React from 'react';
-import { Routes, Route } from 'react-router-dom'; // ⬅️ No need for Router here
+import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CourseProvider } from './context/CourseContext';
 import Layout from './components/layout/Layout';
@@ -18,6 +19,7 @@ import TermsAndConditions from './components/TermsAndConditions';
 import ForgotPassword from './components/auth/ForgotPassword';
 import ResetPassword from './components/auth/ResetPassword';
 import OTPVerification from './components/auth/OTPVerification';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -27,20 +29,35 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/courses" element={<Courses />} />
-            <Route path="/course/:id" element={<CourseDetail />} />
+            
+            {/* Protected Routes */}
+            <Route path="/course/:id" element={
+              <ProtectedRoute>
+                <CourseDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/job/:id" element={
+              <ProtectedRoute>
+                <JobDetail />
+              </ProtectedRoute>
+            } />
+            
+            {/* Public Routes */}
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/terms" element={<TermsAndConditions />} />
             <Route path="/jobs" element={<Jobs />} />
-            <Route path="/job/:id" element={<JobDetail />} />
-            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/verify-otp" element={<OTPVerification />} />
-            {/* Add more routes as needed */}
           </Routes>
         </Layout>
       </CourseProvider>

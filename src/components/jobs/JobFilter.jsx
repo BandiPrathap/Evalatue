@@ -1,126 +1,171 @@
-// JobFilter.js
-import React from 'react';
-import { Form, Accordion, Card, Button } from 'react-bootstrap';
-import { FaFilter, FaTimes } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { 
+  BriefcaseFill, 
+  GeoAltFill, 
+  PeopleFill, 
+  ClockHistory,
+  Building,
+  Search
+} from 'react-bootstrap-icons';
 
-const JobFilter = ({ onFilterChange }) => {
-  const [filters, setFilters] = React.useState({
+const JobFilters = ({ jobs = [], onFilterChange }) => {
+  // State for filter criteria
+  const [filters, setFilters] = useState({
+    jobType: [],
+    workMode: [],
     location: '',
-    types: [],
-    salaryRange: ''
+    company: ''
   });
 
-  const jobTypes = ['Full-time', 'Part-time', 'Contract', 'Internship', 'Remote'];
-  const salaryRanges = [
-    { id: 'low', label: 'Up to $50,000' },
-    { id: 'medium', label: '$50,000 - $100,000' },
-    { id: 'high', label: 'Over $100,000' }
-  ];
+  // Extract unique values for filter options
+  const jobTypes = [...new Set(jobs.map(job => job.job_type))];
+  const workModes = [...new Set(jobs.map(job => job.mode))];
+  const locations = [...new Set(jobs.map(job => job.location))];
+  const companies = [...new Set(jobs.map(job => job.company_name))];
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    
-    if (type === 'checkbox') {
-      const newTypes = checked 
-        ? [...filters.types, value] 
-        : filters.types.filter(t => t !== value);
+  // Handle filter changes
+  const handleFilterChange = (filterType, value) => {
+    setFilters(prev => {
+      if (filterType === 'location' || filterType === 'company') {
+        return { ...prev, [filterType]: value };
+      }
       
-      const newFilters = { ...filters, types: newTypes };
-      setFilters(newFilters);
-      onFilterChange(newFilters);
-    } else {
-      const newFilters = { ...filters, [name]: value };
-      setFilters(newFilters);
-      onFilterChange(newFilters);
-    }
+      // Toggle array values for multi-select filters
+      const newValues = prev[filterType].includes(value)
+        ? prev[filterType].filter(v => v !== value)
+        : [...prev[filterType], value];
+      
+      return { ...prev, [filterType]: newValues };
+    });
   };
 
+  // Apply filters whenever they change
+    useEffect(() => {
+      onFilterChange(filters); // ✅ send filters instead of filtered jobs
+    }, [filters, jobs, onFilterChange]);
+
+
+  // Clear all filters
   const clearFilters = () => {
-    const newFilters = { location: '', types: [], salaryRange: '' };
-    setFilters(newFilters);
-    onFilterChange(newFilters);
+    setFilters({
+      jobType: [],
+      workMode: [],
+      location: '',
+      company: ''
+    });
   };
 
   return (
-    <Card className="shadow-sm mb-4" style={{ maxWidth: '350px' }}>
-      <Card.Header className="bg-white d-flex justify-content-between align-items-center py-3">
-        <div className="d-flex align-items-center">
-          <FaFilter className="me-2 fs-5" />
-          <span className="fw-bold fs-5">Filter Jobs</span>
-        </div>
-        <Button 
-          variant="outline-danger" 
-          size="sm" 
+    <div className="bg-white rounded-4 shadow-sm p-4 mb-4">
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h2 className="h5 fw-bold mb-0">Filter Jobs</h2>
+        <button 
           onClick={clearFilters}
-          className="d-flex align-items-center"
+          className="btn btn-sm btn-outline-secondary"
         >
-          <FaTimes className="me-1" /> Clear
-        </Button>
-      </Card.Header>
-      <Card.Body className="p-3">
-        <Form.Group className="mb-4">
-          <Form.Label className="fw-medium mb-2">Location</Form.Label>
-          <Form.Control
+          Clear All
+        </button>
+      </div>
+
+      {/* Job Type Filter */}
+      <div className="mb-4">
+        <div className="d-flex align-items-center mb-2">
+          <BriefcaseFill className="text-primary me-2" />
+          <h3 className="h6 fw-semibold mb-0">Job Type</h3>
+        </div>
+        <div className="d-flex flex-wrap gap-2">
+          {jobTypes.map(type => (
+            <button
+              key={type}
+              onClick={() => handleFilterChange('jobType', type)}
+              className={`btn btn-sm ${
+                filters.jobType.includes(type)
+                  ? 'btn-primary'
+                  : 'btn-outline-primary'
+              }`}
+            >
+              {type}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Work Mode Filter */}
+      <div className="mb-4">
+        <div className="d-flex align-items-center mb-2">
+          <ClockHistory className="text-primary me-2" />
+          <h3 className="h6 fw-semibold mb-0">Work Mode</h3>
+        </div>
+        <div className="d-flex flex-wrap gap-2">
+          {workModes.map(mode => (
+            <button
+              key={mode}
+              onClick={() => handleFilterChange('workMode', mode)}
+              className={`btn btn-sm ${
+                filters.workMode.includes(mode)
+                  ? 'btn-primary'
+                  : 'btn-outline-primary'
+              }`}
+            >
+              {mode}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Location Filter */}
+      <div className="mb-4">
+        <div className="d-flex align-items-center mb-2">
+          <GeoAltFill className="text-primary me-2" />
+          <h3 className="h6 fw-semibold mb-0">Location</h3>
+        </div>
+        <div className="input-group">
+          <span className="input-group-text">
+            <Search />
+          </span>
+          <input
             type="text"
-            placeholder="City, state, or remote"
-            name="location"
+            className="form-control"
+            placeholder="Search locations..."
             value={filters.location}
-            onChange={handleChange}
-            size="lg"
-            className="py-2"
+            onChange={e => handleFilterChange('location', e.target.value)}
+            list="locationOptions"
           />
-        </Form.Group>
-        
-        <Accordion alwaysOpen className="mb-2">
-          <Accordion.Item eventKey="0" className="mb-3 border rounded-3">
-            <Accordion.Header className="fw-medium fs-6 py-2 px-3">
-              Job Type
-            </Accordion.Header>
-            <Accordion.Body className="p-3 pt-2">
-              <div className="d-flex flex-column">
-                {jobTypes.map(type => (
-                  <Form.Check 
-                    key={type}
-                    type="checkbox"
-                    name="types"
-                    id={`type-${type}`}
-                    label={<span className="fs-6">{type}</span>}
-                    value={type}
-                    checked={filters.types.includes(type)}
-                    onChange={handleChange}
-                    className="mb-3 py-1"
-                  />
-                ))}
-              </div>
-            </Accordion.Body>
-          </Accordion.Item>
-          
-          <Accordion.Item eventKey="1" className="border rounded-3">
-            <Accordion.Header className="fw-medium fs-6 py-2 px-3">
-              Salary Range
-            </Accordion.Header>
-            <Accordion.Body className="p-3 pt-2">
-              <div className="d-flex flex-column">
-                {salaryRanges.map(range => (
-                  <Form.Check 
-                    key={range.id}
-                    type="radio"
-                    name="salaryRange"
-                    id={`salary-${range.id}`}
-                    label={<span className="fs-6">{range.label}</span>}
-                    value={range.id}
-                    checked={filters.salaryRange === range.id}
-                    onChange={handleChange}
-                    className="mb-3 py-1"
-                  />
-                ))}
-              </div>
-            </Accordion.Body>
-          </Accordion.Item>
-        </Accordion>
-      </Card.Body>
-    </Card>
+          <datalist id="locationOptions">
+            {locations.map(loc => (
+              <option key={loc} value={loc} />
+            ))}
+          </datalist>
+        </div>
+      </div>
+
+      {/* Company Filter */}
+      <div>
+        <div className="d-flex align-items-center mb-2">
+          <Building className="text-primary me-2" />
+          <h3 className="h6 fw-semibold mb-0">Company</h3>
+        </div>
+        <div className="input-group">
+          <span className="input-group-text">
+            <Search />
+          </span>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search companies..."
+            value={filters.company}
+            onChange={e => handleFilterChange('company', e.target.value)}
+            list="companyOptions"
+          />
+          <datalist id="companyOptions">
+            {companies.map(company => (
+              <option key={company} value={company} />
+            ))}
+          </datalist>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default JobFilter;
+export default JobFilters;

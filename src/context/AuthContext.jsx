@@ -1,3 +1,4 @@
+// src/context/AuthContext.js
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -7,6 +8,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // Track initial loading state
   const [temporaryCredentials, setTemporaryCredentials] = useState(null);
   const navigate = useNavigate();
 
@@ -15,6 +17,7 @@ export const AuthProvider = ({ children }) => {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+    setLoading(false); // Mark loading as complete
   }, []);
 
   const register = async (formData) => {
@@ -59,6 +62,7 @@ export const AuthProvider = ({ children }) => {
       // Automatically login after verification
       await login({ email, password: temporaryCredentials.password });
       toast.success('Email verified and account created successfully');
+      navigate('/dashboard');
     } catch (error) {
       toast.error(error.message);
       throw error;
@@ -90,7 +94,8 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
       toast.success('Login successful!');
-      navigate('/dashboard');
+      // navigate('/dashboard');
+      return true;
     } catch (error) {
       toast.error(error.message);
       throw error;
@@ -166,6 +171,7 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider value={{ 
       user, 
+      loading,
       temporaryCredentials,
       register, 
       verifyOtp, 
