@@ -33,11 +33,20 @@ API.interceptors.response.use(
   }
 );
 
+export const getUserProfile = ()=>API.get('/api/user/profile');
+
 // Courses API
 export const getAllCourses = () => API.get('/api/courses');
 export const getAllJobs = () => API.get('/api/jobs');
 export const getCourseById = (id) => API.get(`/api/courses/${id}`);
+export const getCoursesProgress = () => API.get('/api/progress');
+export const updateCourseProgress = (data) => API.post('/api/progress',data);
+
+
 export const getJobById = (id) => API.get(`/api/jobs/${id}`);
+export const getSavedJobs = () => API.get(`/api/jobs/saved`);
+export const saveJob = (id) => API.post(`/api/jobs/save/${id}`);
+export const unSaveJob = (id) => API.delete(`api/jobs/saved/${id}`);
 
 // Payment API
 export const createPaymentOrder = (data) => API.post('/api/payments/create-order', data);
@@ -45,6 +54,8 @@ export const verifyPayment = (data) => API.post('/api/payments/verify', data);
 
 // Enrollment API
 export const enrollUser = (courseId) => API.post('/api/enrollments', { course_id: courseId });
+
+
 
 
 

@@ -34,6 +34,7 @@ const CourseDetail = () => {
           data: courseData,
           timestamp: Date.now()
         }));
+        
         if(courseData.modules[0].lessons[0].video_url){
           setEnrolled(true);
         }
@@ -168,10 +169,11 @@ const CourseDetail = () => {
           <CourseContent 
             modules={course.modules} 
             enrolled={enrolled} 
+            courseId={course.id}
           />
         </Col>
 
-        {enrolled&&<Col lg={4}>
+        {!enrolled&&<Col lg={4}>
           <CourseEnrollCard 
             course={course}
             enrolled={enrolled}
