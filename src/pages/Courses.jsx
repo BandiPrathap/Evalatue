@@ -250,7 +250,7 @@ const Courses = () => {
                       <Card.Title className="mb-0">{course.title}</Card.Title>
                       <Badge bg="light" text="dark" className="ms-2">
                         <Clock className="me-1" size={12} />
-                        {course.duration} hrs
+                        {course.duration}
                       </Badge>
                     </div>
                     

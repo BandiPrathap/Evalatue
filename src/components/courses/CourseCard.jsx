@@ -36,7 +36,7 @@ const CourseCard = ({ course }) => {
         <div className="d-flex justify-content-between mb-3">
           <div className="d-flex align-items-center">
             <FaStar className="text-warning me-1" />
-            <span>{course.rating} ({course.reviews} reviews)</span>
+            <span>{course.rating}</span>
           </div>
           <div className="d-flex align-items-center">
             <FaClock className="me-1" />

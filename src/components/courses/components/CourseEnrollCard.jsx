@@ -17,7 +17,6 @@ const CourseEnrollCard = ({ course, enrolled, paymentProcessing, onEnrollClick }
   const imageUrl = course?.imageUrl || 'https://tse3.mm.bing.net/th?id=OIP.qIOXrWlJjB2ymOVHL93MfAHaEw&pid=Api&P=0&h=180';
   const title = course?.title || 'Untitled Course';
   const rating = course?.rating ?? 0;
-  const reviews = course?.reviews ?? 0;
   const duration = course?.duration || 'N/A';
   const language = course?.language || 'N/A';
   const level = course?.category || 'N/A';
@@ -36,7 +35,6 @@ const CourseEnrollCard = ({ course, enrolled, paymentProcessing, onEnrollClick }
           discountedPrice={discountedPrice}
           discount={discount}
           rating={rating} 
-          reviews={reviews} 
         />
         
         <EnrollButton 
@@ -76,7 +74,7 @@ const PriceHeader = ({ price, discountedPrice, discount, rating, reviews }) => (
       </h4>
       <div className="d-flex align-items-center">
         <FaStar className="text-warning" />
-        <span className="ms-1">{rating} ({reviews} reviews)</span>
+        <span className="ms-1">{rating}</span>
       </div>
     </div>
     
@@ -125,7 +123,7 @@ const CourseDetails = ({ duration, language, level }) => (
       <span className="fw-medium text-capitalize">{language}</span>
     </ListGroup.Item>
     <ListGroup.Item className="d-flex justify-content-between py-3">
-      <span>Level</span>
+      <span>Category</span>
       <span className="fw-medium text-capitalize">{level}</span>
     </ListGroup.Item>
   </ListGroup>
