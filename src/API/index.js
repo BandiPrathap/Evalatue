@@ -12,7 +12,6 @@ const API = axios.create({
 // Request interceptor to inject token
 API.interceptors.request.use(config => {
   const user = JSON.parse(localStorage.getItem('user'));
-  console.log('User from localStorage:', user);
   if (user?.token) {
     config.headers.Authorization = `Bearer ${user.token}`;
   }

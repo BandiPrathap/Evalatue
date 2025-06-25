@@ -9,22 +9,23 @@ import CourseHero from './components/CourseHero';
 import CourseContent from './components/CourseContent';
 import CourseEnrollCard from './components/CourseEnrollCard';
 import { getCourseById,createPaymentOrder,verifyPayment} from '../../API/index';
+import { toast, ToastContainer } from 'react-toastify';
 
 const CourseDetail = () => {
   const { id } = useParams();
   const { user } = useAuth();
-  const courseData = useState(JSON.parse(localStorage.getItem("courseData")) || { data: [] });
-  const [course, setCourse] = useState(courseData.data || null);
+  const cachedCourseData = JSON.parse(localStorage.getItem("courseData"));
+  const now = Date.now();
+  const expiryTime = 3600000; // 1 hour
+
+  const isCacheFresh = cachedCourseData && (now - cachedCourseData.timestamp < expiryTime);
+  const [course, setCourse] = useState(isCacheFresh ? cachedCourseData.data : null);
+
   const [loading, setLoading] = useState(true);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
-  const now = Date.now();
-  const expiryTime = 3600000; // 1 hour 
-  const isCacheFresh = now - courseData.timestamp < expiryTime;
-  
-  console.log(id);
-  useEffect(() => {
-    AOS.init({ duration: 800 });
+
+
     const fetchCourse = async () => {
       try {
         const response = await getCourseById(id);
@@ -35,18 +36,18 @@ const CourseDetail = () => {
           timestamp: Date.now()
         }));
         
-        if(courseData.modules[0].lessons[0].video_url){
-          setEnrolled(true);
-        }
+        setEnrolled(courseData.isEnrolled);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching course:', error);
         setLoading(false);
       }
     };
-    
-    fetchCourse();
-  }, [id, user]);
+  
+    useEffect(() => {
+      AOS.init({ duration: 800 });
+      fetchCourse();
+    }, [id, user]);
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -78,7 +79,10 @@ const CourseDetail = () => {
 
       // Load Razorpay SDK
       const sdkLoaded = await loadRazorpayScript();
-      if (!sdkLoaded) throw new Error('Failed to load payment processor');
+      if (!sdkLoaded){
+          toast.error('Payment order creation failed');
+          throw new Error('Failed to load payment processor');
+      }
       const order = orderData.data.order;
       if (!order) {
         throw new Error('Failed to create payment order');
@@ -88,7 +92,7 @@ const CourseDetail = () => {
         key: 'rzp_test_imrl5UK7barGAX',
         amount: order.amount,
         currency: order.currency,
-        name: 'EduPlatform',
+        name: 'JoinSchooling',
         description: `Payment for: ${course.title}`,
         order_id: order.id,
         prefill: {
@@ -108,16 +112,16 @@ const CourseDetail = () => {
             
             // Update UI
             setEnrolled(true);
-            const updatedCourse = await getCourseById(id);
-            setCourse(updatedCourse);
+            fetchCourse();
+            toast.success('Payment successful! You are now enrolled.');
           } catch (error) {
             console.error('Payment verification error:', error);
-            alert(`Payment failed: ${error.message}`);
+            toast.error(`Payment failed: ${error.message}`);
           }
         },
         modal: {
           ondismiss: () => {
-            alert('Payment was cancelled');
+            toast.info('Payment was cancelled.');
             setPaymentProcessing(false);
           }
         }
@@ -155,6 +159,7 @@ const CourseDetail = () => {
 
   return (
     <Container className="py-5">
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <Row>
         <Col lg={8}>
           <CourseHero 

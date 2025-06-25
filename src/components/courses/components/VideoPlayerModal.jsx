@@ -5,11 +5,19 @@ const isYouTubeUrl = (url) => {
   return /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)/.test(url);
 };
 
-const getYouTubeEmbedUrl = (url) => {
-  const videoIdMatch = url.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
-  );
-  return videoIdMatch ? `https://www.youtube.com/embed/${videoIdMatch[1]}?autoplay=1` : '';
+const getYouTubeVideoId = (url) => {
+  const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+};
+
+const loadYouTubeAPI = () => {
+  if (window.YT && window.YT.Player) return Promise.resolve();
+  return new Promise((resolve) => {
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.body.appendChild(tag);
+    window.onYouTubeIframeAPIReady = () => resolve();
+  });
 };
 
 const VideoPlayerModal = ({ videoUrl, onClose, onComplete, lessonId }) => {
@@ -17,25 +25,51 @@ const VideoPlayerModal = ({ videoUrl, onClose, onComplete, lessonId }) => {
   const [watchedPercent, setWatchedPercent] = useState(0);
   const [hasReported, setHasReported] = useState(false);
   const isYouTube = isYouTubeUrl(videoUrl);
+  const playerRef = useRef(null);
+  const intervalRef = useRef(null);
 
   useEffect(() => {
-    if (!videoRef.current || isYouTube) return;
+    if (!isYouTube) return;
 
-    const video = videoRef.current;
+    const setupPlayer = async () => {
+      await loadYouTubeAPI();
+      const videoId = getYouTubeVideoId(videoUrl);
 
-    const handleTimeUpdate = () => {
-      const percent = (video.currentTime / video.duration) * 100;
-      setWatchedPercent(percent);
-
-      if (percent >= 80 && !hasReported) {
-        setHasReported(true);
-        onComplete?.(lessonId, percent);
-      }
+      playerRef.current = new window.YT.Player(videoRef.current, {
+        videoId,
+        events: {
+          onReady: (event) => {
+            event.target.playVideo();
+          },
+          onStateChange: (event) => {
+            if (event.data === window.YT.PlayerState.PLAYING) {
+              clearInterval(intervalRef.current);
+              intervalRef.current = setInterval(() => {
+                const player = playerRef.current;
+                const duration = player.getDuration();
+                const currentTime = player.getCurrentTime();
+                const percent = (currentTime / duration) * 100;
+                setWatchedPercent(percent);
+                if (percent >= 80 && !hasReported) {
+                  setHasReported(true);
+                  onComplete?.(lessonId, percent);
+                }
+              }, 1000);
+            } else if (event.data === window.YT.PlayerState.ENDED || event.data === window.YT.PlayerState.PAUSED) {
+              clearInterval(intervalRef.current);
+            }
+          }
+        }
+      });
     };
 
-    video.addEventListener('timeupdate', handleTimeUpdate);
+    setupPlayer();
+
     return () => {
-      video.removeEventListener('timeupdate', handleTimeUpdate);
+      clearInterval(intervalRef.current);
+      if (playerRef.current?.destroy) {
+        playerRef.current.destroy();
+      }
     };
   }, [videoUrl, isYouTube, hasReported, lessonId, onComplete]);
 
@@ -53,16 +87,11 @@ const VideoPlayerModal = ({ videoUrl, onClose, onComplete, lessonId }) => {
         {isYouTube ? (
           <>
             <div className="ratio ratio-16x9">
-              <iframe
-                src={getYouTubeEmbedUrl(videoUrl)}
-                title="YouTube video"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
+              <div ref={videoRef}></div>
             </div>
-            <div className="mt-2 text-muted small">
-              * YouTube progress tracking is not supported.
-            </div>
+            {/* <div className="mt-2 text-muted small">
+              Watched: {watchedPercent.toFixed(1)}%
+            </div> */}
           </>
         ) : (
           <>
@@ -70,9 +99,9 @@ const VideoPlayerModal = ({ videoUrl, onClose, onComplete, lessonId }) => {
               <source src={videoUrl} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
-            <div className="mt-2 text-muted small">
+            {/* <div className="mt-2 text-muted small">
               Watched: {watchedPercent.toFixed(1)}%
-            </div>
+            </div> */}
           </>
         )}
       </Modal.Body>

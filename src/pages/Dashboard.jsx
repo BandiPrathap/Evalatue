@@ -172,7 +172,12 @@ const Dashboard = () => {
                 <div className="mt-2 text-muted">Loading courses...</div>
               </Col>
             ) : courses.length === 0 ? (
-              <Col><p className="text-muted">No courses enrolled.</p></Col>
+              <Col>
+                <p className="text-muted">No courses enrolled.</p>
+                  <Button as={Link} to="/courses" variant="primary">
+                    Explore Courses
+                  </Button>
+              </Col>
             ) : (
               courses.map((course, index) => (
                 <Col md={6} lg={4} key={course.id} data-aos="fade-up" data-aos-delay={index * 100} className="mb-4">
@@ -198,7 +203,12 @@ const Dashboard = () => {
                 <div className="mt-2 text-muted">Loading jobs...</div>
               </Col>
             ) : savedJobs.length === 0 ? (
-              <Col><p className="text-muted">No saved jobs yet.</p></Col>
+              <Col>
+                <p className="text-muted">No saved jobs yet.</p>
+                  <Button as={Link} to="/jobs" variant="primary">
+                    Explore Jobs
+                  </Button> 
+              </Col>
             ) : (
               savedJobs.map((job, index) => (
                 <Col md={6} key={job.id} data-aos="fade-up" data-aos-delay={index * 100} className="mb-4">

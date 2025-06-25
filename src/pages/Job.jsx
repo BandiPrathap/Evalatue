@@ -25,7 +25,7 @@ const Jobs = () => {
     mode: '',
     minSalary: ''
   });
-  const [showFilters, setShowFilters] = useState(true); // New state for filter visibility
+  const [showFilters, setShowFilters] = useState(false); // New state for filter visibility
 
   // Fetch jobs from API
   const fetchJobs = async () => {

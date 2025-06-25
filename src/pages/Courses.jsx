@@ -17,7 +17,7 @@ const Courses = () => {
   const [searchTerm, setSearchTerm] = useState(() => localStorage.getItem('courseSearchTerm') || '');
   const [sortOrder, setSortOrder] = useState(() => localStorage.getItem('courseSortOrder') || 'newest');
   const [priceFilter, setPriceFilter] = useState(() => localStorage.getItem('coursePriceFilter') || 'all');
-  const [showFilters, setShowFilters] = useState(true); // New state for filter visibility
+  const [showFilters, setShowFilters] = useState(false); // New state for filter visibility
 
   const navigate = useNavigate();
   const location = useLocation();

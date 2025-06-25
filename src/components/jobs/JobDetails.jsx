@@ -79,6 +79,8 @@ const JobDetails = () => {
     fetchSaved();
   }, [jobId]);
 
+  const ONE_HOUR = 60 * 60 * 1000; // in milliseconds
+
   const handleToggleSave = async () => {
     try {
       if (isSaved) {
@@ -88,11 +90,22 @@ const JobDetails = () => {
         await saveJob(jobId);
         toast.success("Job saved successfully");
       }
+
+      const savedJobs = await getSavedJobs();
+
+      // Store in localStorage with timestamp
+      const savedJobsData = {
+        data: savedJobs.data,
+        timestamp: Date.now()
+      };
+      localStorage.setItem("savedJobsData", JSON.stringify(savedJobsData));
+
       setIsSaved(!isSaved);
     } catch (error) {
       toast.error("Failed to update saved job status");
     }
   };
+
 
   if (loading) {
     return (
