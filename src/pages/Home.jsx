@@ -11,6 +11,7 @@ import 'aos/dist/aos.css';
 import FAQ from '../components/FAQ';
 import {getAllCourses,getAllJobs} from '../API/index'
 
+
 const HomePage = () => {
   const [courses, setCourses] = useState([]);
   const [jobs, setJobs] = useState([]);

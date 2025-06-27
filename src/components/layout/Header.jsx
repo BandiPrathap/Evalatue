@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Container, Navbar, Nav, Button, Form } from 'react-bootstrap';
 import { FaSearch, FaUser, FaBars } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
+import Logo from '../../Assests/Logo.jpg'
 
 const Header = () => {
   const [expanded, setExpanded] = useState(false);
@@ -21,11 +22,11 @@ const Header = () => {
         <Navbar.Brand as={Link} to="/" className="fw-bold text-primary">
           <span className="d-flex align-items-center">
             <img 
-              src="https://img.freepik.com/premium-vector/skills-icon-with-settings-sign-skills-icon-customize-setup-manage-process-symbol-vector-icon_775815-966.jpg?w=1380" 
+              src = {Logo}
               alt="SkillMaster" 
               width="40" 
               height="40" 
-              className="me-2 border rounded-circle"
+              className="me-2 border rounded-circle object-fit-cover"
             />
             JoinSchooling
           </span>

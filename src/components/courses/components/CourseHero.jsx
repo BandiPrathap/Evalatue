@@ -18,7 +18,7 @@ const CourseHero = ({ title, rating, duration, level, language, description }) =
       <Badge bg="info" className="text-capitalize">{level}</Badge>
       <Badge bg="success" className="text-capitalize">{language}</Badge>
     </div>
-    <p className="lead">{description}</p>
+    <p className="lead text-muted">{description}</p>
   </div>
 );
 

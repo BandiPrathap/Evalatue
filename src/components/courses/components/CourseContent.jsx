@@ -1,31 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Accordion } from 'react-bootstrap';
-import { FaPlay, FaLock } from 'react-icons/fa';
+import { Accordion, Badge } from 'react-bootstrap';
+import { FaPlay, FaLock, FaQuestionCircle } from 'react-icons/fa';
 import VideoPlayerModal from './VideoPlayerModal';
 import { updateCourseProgress, getCoursesProgress } from '../../../API/index';
+import { useNavigate } from 'react-router-dom';
 
-
-const CourseContent = ({ modules = [], enrolled, courseId }) => {
+const CourseContent = ({ modules = [], enrolled, courseId, practiceQuestions = [] }) => {
   const [currentUnlockedIndex, setCurrentUnlockedIndex] = useState(0);
   const [showPlayer, setShowPlayer] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState(null);
-
+  const navigate = useNavigate();
 
   const flatLessons = modules.flatMap(module => module.lessons || []);
   const parsedCourseId = parseInt(courseId);
   const oneHour = 3600000;
-  
+
   useEffect(() => {
     const loadProgress = async () => {
-
       const cached = JSON.parse(localStorage.getItem("coursesProgressData"));
       const now = Date.now();
-
       let progressList = [];
 
       if (cached && now - cached.timestamp < oneHour) {
         progressList = cached.data;
-        console.log("Loaded progress from localStorage");
       } else {
         try {
           const res = await getCoursesProgress();
@@ -34,7 +31,6 @@ const CourseContent = ({ modules = [], enrolled, courseId }) => {
             data: res.data,
             timestamp: now
           }));
-          console.log("Fetched and stored progress from API");
         } catch (err) {
           console.error("Error loading progress", err);
         }
@@ -51,18 +47,10 @@ const CourseContent = ({ modules = [], enrolled, courseId }) => {
   }, [parsedCourseId]);
 
   const handleLessonComplete = async (lessonId, watchedPercent) => {
-    
-
     const index = flatLessons.findIndex(lesson => lesson.id === lessonId);
     if (watchedPercent >= 80 && index === currentUnlockedIndex) {
       const newProgress = Math.round(((index + 1) / flatLessons.length) * 100);
       setCurrentUnlockedIndex(prev => prev + 1);
-
-      console.log({
-          course_id: courseId,
-          progress_percentage: newProgress,
-          last_accessed_lesson_id: lessonId
-        });
 
       try {
         await updateCourseProgress({
@@ -71,7 +59,6 @@ const CourseContent = ({ modules = [], enrolled, courseId }) => {
           last_accessed_lesson_id: lessonId
         });
 
-        // Update cached localStorage data
         const cached = JSON.parse(localStorage.getItem("coursesProgressData")) || { data: [], timestamp: Date.now() };
         const existing = cached.data.find(p => p.course_id === parsedCourseId);
         if (existing) {
@@ -84,7 +71,7 @@ const CourseContent = ({ modules = [], enrolled, courseId }) => {
             progress: newProgress,
             last_accessed_lesson_id: lessonId,
             updated_at: new Date().toISOString(),
-            course_title: "" // Optional if needed
+            course_title: ""
           });
         }
 
@@ -92,12 +79,29 @@ const CourseContent = ({ modules = [], enrolled, courseId }) => {
           data: cached.data,
           timestamp: Date.now()
         }));
-
       } catch (err) {
         console.error("Failed to update progress", err);
       }
     }
   };
+
+  practiceQuestions = [
+    {
+      id: 101,
+      moduleId: 1,
+      title: "Factorial Function",
+      description: "Write a function to compute the factorial of n.",
+      difficulty: "easy"
+    },
+    {
+      id: 102,
+      moduleId: 2,
+      title: "Binary Search",
+      description: "Implement binary search on a sorted array.",
+      difficulty: "medium"
+    }
+  ];
+
 
   return (
     <div data-aos="fade-right">
@@ -109,7 +113,8 @@ const CourseContent = ({ modules = [], enrolled, courseId }) => {
               Module {moduleIndex + 1}: {module.title}
             </Accordion.Header>
             <Accordion.Body>
-              <ul className="list-group list-group-flush">
+              {/* Lessons */}
+              <ul className="list-group list-group-flush mb-3">
                 {(module.lessons || []).map((lesson, i) => {
                   const flatIndex = flatLessons.findIndex(l => l.id === lesson.id);
                   const isLocked = !enrolled || flatIndex > currentUnlockedIndex;
@@ -141,11 +146,21 @@ const CourseContent = ({ modules = [], enrolled, courseId }) => {
                   );
                 })}
               </ul>
+
+              {/* Practice Questions inside this module */}
+              {practiceQuestions.length > 0 && (
+                <>
+                  <h5 className="mt-4 mb-3 text-primary d-flex align-items-center" style={{ cursor: 'pointer' }}  onClick={() => navigate(`/practice`)}>
+                    <FaQuestionCircle className="me-2" /> Practice Questions
+                  </h5>
+                </>
+              )}
             </Accordion.Body>
           </Accordion.Item>
         ))}
       </Accordion>
 
+      {/* Video Player Modal */}
       {showPlayer && selectedLesson && (
         <VideoPlayerModal
           videoUrl={selectedLesson.lesson.video_url}

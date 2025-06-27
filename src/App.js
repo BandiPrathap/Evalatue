@@ -20,6 +20,8 @@ import ForgotPassword from './components/auth/ForgotPassword';
 import ResetPassword from './components/auth/ResetPassword';
 import OTPVerification from './components/auth/OTPVerification';
 import ProtectedRoute from './components/ProtectedRoute';
+import CodingPlatform from './components/CodingPlatform';
+import PracticeQuestions from './components/PracticeQuestions';
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/courses" element={<Courses />} />
+            <Route path="/coding/:id" element={<CodingPlatform/>}/>
+            <Route path="/practice" element={<PracticeQuestions/>}/>
             
             {/* Protected Routes */}
             <Route path="/course/:id" element={

@@ -7,6 +7,7 @@ import {
   FaLinkedin,
   FaYoutube
 } from 'react-icons/fa';
+import Logo from '../../Assests/Logo.jpg'
 
 const Footer = () => {
   return (
@@ -15,6 +16,13 @@ const Footer = () => {
         <Row>
           {/* Brand Info */}
           <Col md={4} className="mb-4">
+            <img 
+              src = {Logo}
+              alt="SkillMaster" 
+              width="40" 
+              height="40" 
+              className="me-2 border rounded-circle object-fit-cover"
+            />
             <h4 className="text-primary">JoinSchooling</h4>
             <p>
               Unlock your potential with expert-led online courses in tech,
