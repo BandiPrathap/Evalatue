@@ -31,8 +31,6 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/courses" element={<Courses />} />
-            <Route path="/coding/:id" element={<CodingPlatform/>}/>
-            <Route path="/practice" element={<PracticeQuestions/>}/>
             
             {/* Protected Routes */}
             <Route path="/course/:id" element={
@@ -50,6 +48,16 @@ function App() {
                 <JobDetail />
               </ProtectedRoute>
             } />
+            <Route path="/coding/:id" element={
+              <ProtectedRoute>
+                <CodingPlatform/>
+              </ProtectedRoute>
+            }/>
+            <Route path="/practice" element={
+              <ProtectedRoute>
+                <PracticeQuestions/>
+              </ProtectedRoute>
+            }/>
             
             {/* Public Routes */}
             <Route path="/about" element={<About />} />

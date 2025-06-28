@@ -42,6 +42,7 @@ const Header = () => {
             <Nav.Link as={Link} to="/" onClick={() => setExpanded(false)}>Home</Nav.Link>
             <Nav.Link as={Link} to="/about" onClick={() => setExpanded(false)}>About</Nav.Link>
             <Nav.Link as={Link} to="/courses" onClick={() => setExpanded(false)}>Courses</Nav.Link>
+            <Nav.Link as={Link} to="/practice" onClick={() => setExpanded(false)}>Practice</Nav.Link>
             <Nav.Link as={Link} to="/jobs" onClick={() => setExpanded(false)}>Jobs</Nav.Link>
             <Nav.Link as={Link} to="/contact" onClick={() => setExpanded(false)}>Contact</Nav.Link>
           </Nav>

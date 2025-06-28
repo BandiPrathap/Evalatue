@@ -299,7 +299,7 @@ const PracticeQuestions = () => {
                   {getStatusBadge(q.completionStatus)}
                   {q.completionStatus !== 'not-attempted' && (
                     <>
-                      {/* <div className="mt-2">
+                      <div className="mt-2">
                         Score: <strong>{q.bestScore}%</strong>
                         <ProgressBar
                           now={q.bestScore}
@@ -313,7 +313,7 @@ const PracticeQuestions = () => {
                               : 'danger'
                           }
                         />
-                      </div> */}
+                      </div>
                       {q.lastAttempt && (
                         <div className="text-muted small mt-1">
                           Last Attempt: {new Date(q.lastAttempt).toLocaleDateString()}
